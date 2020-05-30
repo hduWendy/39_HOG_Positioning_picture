@@ -11,7 +11,7 @@ int main()
 	cv::Mat Mat_0 = imread("C:/Users/lenovo/Desktop/数图图片/img.png");
 	cv::Mat tempMat = imread("C:/Users/lenovo/Desktop/数图图片/template.png", 0);	
 	cv::Mat Mat = imread("C:/Users/lenovo/Desktop/数图图片/img.png", 0);
-	cv::Mat Mat1;
+	cv::Mat Mat1;//Mat中的一部分图像
 
 	tempMat.copyTo(Mat1);
 
@@ -75,14 +75,17 @@ int main()
 	cell_t = 0;
 	//tempMat处理结束
 
+//	float L,M;
+
 	//滑动赋值Mat1
+	int n = 0;
 	int step_n = 1;//不可以随便改，否则需要修改mX、mY
-	for (int x = 0; x + height <= height_Mat; x += step_n)
+	int x, y;
+	for (x = 0; x + height - 1 <= height_Mat - 1; x += step_n)
 	{
-		for (int y = 0; y + width <= width_Mat; y += step_n)
+		for (y = 0; y + width - 1 <= width_Mat - 1; y += step_n)
 		{
-			//赋值每一个Mat1
-			int n = 0;
+			//赋值每一个Mat1			
 			for (int det_x = 0; det_x < height; det_x++)
 			{
 				for (int det_y = 0; det_y < width; det_y++)
@@ -129,21 +132,26 @@ int main()
 			for (int t = 0; t < bins; t++)
 			{
 				ref_hist_Mat_n[n] += sqrt(pow((ref_hist_Mat1[t] - ref_hist[t]), 2));
-				//ref_hist_Mat_n[n] += abs(ref_hist_Mat1[t] - ref_hist[t]);
-				//ref_hist_Mat_n[n] += ref_hist_Mat1[t];
+
+//				M = sqrt(pow((ref_hist_Mat1[t] - ref_hist[t]), 2));
+
 			}
+//			L = ref_hist_Mat_n[n];	
 
 			//换下一个Mat1
 			n++;
+			//置零Mat1相似度动态数组
+			memset(ref_hist_Mat1, 0, sizeof(float)*bins);
 		}
 	}
 
 	//寻找相似度最大值
 	float Min_ref_hist_Mat_n = ref_hist_Mat_n[0];
 	int Min_n = 0;
-	for (int n = 1; n < Mat_n_bins; n++)
+	for (int n = 20000; n < Mat_n_bins; n++)
 	{
-		if (ref_hist_Mat_n[n] > Min_ref_hist_Mat_n)
+//		float N = ref_hist_Mat_n[n];
+		if (ref_hist_Mat_n[n] < Min_ref_hist_Mat_n)
 		{
 			Min_ref_hist_Mat_n = ref_hist_Mat_n[n];
 			Min_n = n;
@@ -165,8 +173,8 @@ int main()
 
 	//画框
 	cv::Rect rect;
-	rect.x = rect_x;
-	rect.y = rect_y;
+	rect.x = rect_y;
+	rect.y = rect_x;
 	rect.width = width;
 	rect.height = height;
 	rectangle(Mat_0, rect, CV_RGB(0, 255, 0), 1, 8, 0);
